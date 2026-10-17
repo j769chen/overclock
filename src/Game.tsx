@@ -188,18 +188,20 @@ export default function Game() {
     };
   }, [commit, startGame]);
 
+  const isNewBest = useCallback((s: GameState) => !inDaily.current && s.score > 0 && s.score > startBest.current, []);
+
   const over = state?.over ?? false;
   useEffect(() => {
     if (!over || overVisible) return;
     const t = setTimeout(() => {
       const s = stateRef.current;
-      setNewBest(!!s && s.score > 0 && s.score > startBest.current);
+      setNewBest(!!s && isNewBest(s));
       setOverVisible(true);
       haptic('error');
       sfx('over');
     }, 900);
     return () => clearTimeout(t);
-  }, [over, overVisible, haptic, sfx]);
+  }, [over, overVisible, haptic, sfx, isNewBest]);
 
   useEffect(() => {
     if (!armed) return;
@@ -310,8 +312,9 @@ export default function Game() {
     stateRef.current = game;
     setState(game);
     setOverVisible(game.over);
+    setNewBest(game.over && isNewBest(game));
     dealAll();
-  }, [cancelTimers, dealAll, isDragging]);
+  }, [cancelTimers, dealAll, isDragging, isNewBest]);
 
   const selected = chosen !== null && state?.tray[chosen] && !state.over ? chosen : null;
 
@@ -367,7 +370,7 @@ export default function Game() {
 
   const restart = useCallback(() => {
     const s = stateRef.current;
-    if (!s) return;
+    if (!s || isDragging()) return;
     if (s.over || armed) {
       setArmed(false);
       if (!s.over && s.score > 0) track(recordGame(statsRef.current, s.score));
@@ -376,7 +379,7 @@ export default function Game() {
       setArmed(true);
       AccessibilityInfo.announceForAccessibility('Tap again to start a new game.');
     }
-  }, [armed, startGame, track]);
+  }, [armed, startGame, track, isDragging]);
 
   if (!state) {
     return (

@@ -239,6 +239,20 @@ describe('Game', () => {
     expect(slot(1).props.accessibilityLabel).toContain('1 wide by 3 tall');
   });
 
+  it('ignores a restart confirmed while a part is being dragged', async () => {
+    const pans = capturePans();
+    await mount({ game: blankGame({ score: 300, best: 300 }) });
+    const p = pointer(pans, 1);
+    await fireEvent.press(screen.getByRole('button', { name: 'New game' }));
+    await p.down();
+    await fireEvent.press(screen.getByRole('button', { name: 'Confirm new game' }));
+    expect(screen.getByLabelText('Score 300')).toBeTruthy();
+    await p.moveOver(2, 4);
+    await p.up();
+    expect(screen.getByLabelText('C5, orange')).toBeTruthy();
+    expect(screen.getByLabelText('Score 310')).toBeTruthy();
+  });
+
   it('turns a part and saves the turn', async () => {
     await mount({ game: blankGame({ tray: [makePiece(3, 1), null, null] }) });
     expect(slot(1).props.accessibilityLabel).toContain('3 wide by 1 tall');
@@ -318,6 +332,15 @@ describe('game over', () => {
     expect(screen.getByLabelText('Score 0')).toBeTruthy();
     expect(screen.getByLabelText('Peak score 10')).toBeTruthy();
     expect(await savedGame()).toMatchObject({ score: 0, best: 10, over: false });
+  });
+
+  it('still claims a new peak after switching to the daily and back before the result shows', async () => {
+    await mount({ game: lastMoveGame() });
+    await place(1, 'D4');
+    await fireEvent.press(screen.getByRole('button', { name: "Today's daily circuit" }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Back to endless game' }));
+    expect(screen.getByText('Short circuit')).toBeTruthy();
+    expect(screen.getByText('New peak score!')).toBeTruthy();
   });
 
   it('does not claim a new peak when the starting peak was not beaten', async () => {
