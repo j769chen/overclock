@@ -80,7 +80,7 @@ Peak score, stats, the game in progress, today's daily circuit and your last dai
 - Touch: the part's centre floats about two cells above your finger and moves 1.4× as far, so your finger stays clear of where it lands.
 - Mouse: the part sits on the cursor and moves with it 1:1.
 - The shadow and the drop use the nearest open spot within one cell of the part.
-- Screen readers: double-tap a socket to choose its part, then double-tap a board square to place the part with its top-left corner there. Every square reads its contents, and the result of each placement is announced.
+- Screen readers: double-tap a socket to choose its part, then double-tap a board square to place the part with its top-left corner there. Each socket says when its part only fits after rotating or doesn't fit at all, every square reads its contents, and the result of each placement is announced.
 
 ## Scripts
 

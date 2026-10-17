@@ -172,25 +172,28 @@ describe('Board', () => {
   });
 });
 
+function tray(parts: (Piece | null)[], grid = Array<number>(N * N).fill(-1), selected: number | null = null) {
+  const onSelect = jest.fn();
+  return render(
+    <Tray
+      tray={parts}
+      grid={grid}
+      m={m}
+      anims={[0, 1, 2].map(() => ({ key: 0, kind: 'deal' as const }))}
+      gestures={[0, 1, 2].map(() => Gesture.Pan())}
+      slotRefs={[0, 1, 2].map(() => null)}
+      onTrayLayout={() => {}}
+      drag={drag()}
+      onRotate={() => {}}
+      selected={selected}
+      onSelect={onSelect}
+    />,
+  ).then(() => onSelect);
+}
+
 describe('Tray', () => {
   it('lets a screen reader choose a part', async () => {
-    const onSelect = jest.fn();
-    const tray = [single(), null, makePiece(3, 4)];
-    await render(
-      <Tray
-        tray={tray}
-        grid={Array(N * N).fill(-1)}
-        m={m}
-        anims={[0, 1, 2].map(() => ({ key: 0, kind: 'deal' as const }))}
-        gestures={[0, 1, 2].map(() => Gesture.Pan())}
-        slotRefs={[0, 1, 2].map(() => null)}
-        onTrayLayout={() => {}}
-        drag={drag()}
-        onRotate={() => {}}
-        selected={2}
-        onSelect={onSelect}
-      />,
-    );
+    const onSelect = await tray([single(), null, makePiece(3, 4)], undefined, 2);
     await fireEvent(screen.getByLabelText('U1, red 1-cell part, 1 wide by 1 tall'), 'accessibilityAction', activate);
     expect(onSelect).toHaveBeenCalledWith(0);
     expect(screen.getByLabelText('U2, empty').props.accessibilityActions).toBeUndefined();
@@ -198,6 +201,15 @@ describe('Tray', () => {
     expect(screen.getByLabelText(/^U3, cyan/).props.accessibilityActions).toEqual([
       { name: 'activate', label: 'Choose' },
     ]);
+  });
+
+  it('says when a part only fits after rotating or does not fit at all', async () => {
+    const grid = Array<number>(N * N).fill(0);
+    for (let r = 0; r < 3; r++) grid[cellIndex(r, 0)] = -1;
+    await tray([single(), makePiece(3, 1), makePiece(9, 2)], grid);
+    expect(screen.getByLabelText('U1, red 1-cell part, 1 wide by 1 tall')).toBeTruthy();
+    expect(screen.getByLabelText('U2, orange 3-cell part, 3 wide by 1 tall, fits after rotating')).toBeTruthy();
+    expect(screen.getByLabelText("U3, yellow 4-cell part, 2 wide by 2 tall, doesn't fit")).toBeTruthy();
   });
 });
 

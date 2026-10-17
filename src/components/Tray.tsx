@@ -10,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { describePiece } from '../describe';
+import { describeFit, describePiece } from '../describe';
 import type { DragShared } from '../drag';
 import { turnsToFit, type Piece } from '../engine';
 import { C, F, glow, PART_COLORS, type Metrics } from '../theme';
@@ -113,7 +113,7 @@ export const Tray = memo(function Tray({
               ref={slotRefs[i]}
               accessible
               accessibilityRole={p ? 'button' : undefined}
-              accessibilityLabel={p ? `U${i + 1}, ${describePiece(p)}` : `U${i + 1}, empty`}
+              accessibilityLabel={p ? `U${i + 1}, ${describePiece(p)}${describeFit(turns[i])}` : `U${i + 1}, empty`}
               accessibilityHint={p ? 'Chooses this part, then pick a board square to place it' : undefined}
               aria-selected={selected === i}
               accessibilityActions={p ? CHOOSE : undefined}

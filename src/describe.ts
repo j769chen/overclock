@@ -12,6 +12,8 @@ export function describePiece(p: Piece) {
   return `${PART_NAMES[p.c]} ${p.cells.length}-cell part, ${p.w} wide by ${p.h} tall${core}`;
 }
 
+export const describeFit = (turns: number) => (turns < 0 ? ", doesn't fit" : turns > 0 ? ', fits after rotating' : '');
+
 export function describeCell(r: number, c: number, color: number, core: CoreKind | null, note = '') {
   const name = `${ROW_LABELS[r]}${COL_LABELS[c]}`;
   const contents = color < 0 ? 'empty' : `${PART_NAMES[color]}${core ? `, ${CORE_NAMES[core]}` : ''}`;
