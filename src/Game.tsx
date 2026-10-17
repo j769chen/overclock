@@ -391,6 +391,7 @@ export default function Game() {
       <Background />
       <View
         aria-hidden={overVisible}
+        inert={overVisible}
         style={[styles.column, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }]}
       >
         <Hud

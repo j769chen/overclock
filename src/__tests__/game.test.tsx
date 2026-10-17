@@ -328,6 +328,23 @@ describe('game over', () => {
     expect(screen.getByText('Peak 500')).toBeTruthy();
     expect(screen.queryByText('New peak score!')).toBeNull();
   });
+
+  it('takes the game behind the result out of the keyboard order until play resumes', async () => {
+    const inert = () => {
+      let node: ReturnType<typeof screen.getByLabelText> | null = screen.getByLabelText('How to play', {
+        includeHiddenElements: true,
+      });
+      while (node && node.props.inert === undefined) node = node.parent;
+      return node?.props.inert;
+    };
+    await mount({ game: lastMoveGame() });
+    expect(inert()).toBe(false);
+    await place(1, 'D4');
+    await tick(1000);
+    expect(inert()).toBe(true);
+    await fireEvent.press(screen.getByRole('button', { name: 'Play again' }));
+    expect(inert()).toBe(false);
+  });
 });
 
 describe('stats', () => {
