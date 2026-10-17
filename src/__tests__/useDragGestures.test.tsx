@@ -269,12 +269,13 @@ describe('dragging a part', () => {
     });
     const f = finger(0);
     await f.down();
+    expect(hook.held[0]).toEqual(single());
     await f.move(centreOver(3, 4));
     const dropped = ghostFrame(hook.drag, 0);
     await f.up();
-    expect(hook.held[0]).toEqual(single());
     expect(heldAt).toEqual(dropped);
     expect(hook.drag.landing.get()).toEqual([null, null, null]);
+    expect(hook.held).toEqual([null, null, null]);
   });
 });
 

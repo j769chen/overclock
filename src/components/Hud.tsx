@@ -48,6 +48,28 @@ function useCountUp(target: number) {
   return shown;
 }
 
+const Score = memo(function Score({ score, size }: { score: number; size: number }) {
+  const shown = useCountUp(score);
+  const bump = useSharedValue(1);
+  const bumpStyle = useAnimatedStyle(() => ({ transform: [{ scale: bump.get() }] }));
+
+  useEffect(() => {
+    if (!score) return;
+    bump.set(withSequence(withTiming(1.1, { duration: 0 }), withSpring(1, { stiffness: 230, damping: 16 })));
+  }, [score, bump]);
+
+  return (
+    <Animated.Text
+      style={[styles.score, { fontSize: Math.min(54, Math.max(38, size * 0.12)), maxWidth: size * 0.46 }, bumpStyle]}
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      accessibilityLabel={`Score ${fmt(score)}`}
+    >
+      {fmt(shown)}
+    </Animated.Text>
+  );
+});
+
 export const Hud = memo(function Hud({
   score,
   best,
@@ -60,17 +82,9 @@ export const Hud = memo(function Hud({
   onDaily,
   onStats,
 }: HudProps) {
-  const shown = useCountUp(score);
   const [statWidth, setStatWidth] = useState(0);
   const stat = daily === null ? fmt(best) : `#${daily}`;
   const statFont = statWidth ? Math.min(STAT_FONT, statWidth / (stat.length * DIGIT_EM)) : STAT_FONT;
-  const bump = useSharedValue(1);
-  const bumpStyle = useAnimatedStyle(() => ({ transform: [{ scale: bump.get() }] }));
-
-  useEffect(() => {
-    if (!score) return;
-    bump.set(withSequence(withTiming(1.1, { duration: 0 }), withSpring(1, { stiffness: 230, damping: 16 })));
-  }, [score, bump]);
 
   return (
     <View style={[styles.hud, { width: m.size }]}>
@@ -105,21 +119,7 @@ export const Hud = memo(function Hud({
         </Pressable>
       </View>
       <View style={styles.center}>
-        <Animated.Text
-          style={[
-            styles.score,
-            {
-              fontSize: Math.min(54, Math.max(38, m.size * 0.12)),
-              maxWidth: m.size * 0.46,
-            },
-            bumpStyle,
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          accessibilityLabel={`Score ${fmt(score)}`}
-        >
-          {fmt(shown)}
-        </Animated.Text>
+        <Score score={score} size={m.size} />
       </View>
       <View style={[styles.side, styles.tools]}>
         <Pressable

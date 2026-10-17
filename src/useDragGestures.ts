@@ -170,6 +170,7 @@ export function useDragGestures({ state, stateRef, m, onPlace, onLift }: Options
         const { r, c } = decodeCell(code);
         onPlace(i, r, c);
       }
+      setHeld((h) => h.map((x, k) => (k === i ? null : x)));
       released.current.push(i);
       setReleaseSeq((n) => n + 1);
     },
