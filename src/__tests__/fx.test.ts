@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { cellIndex, makePiece, N, placePiece, type GameState, type Piece } from '../engine';
-import { buildFx, CIRCUIT_STEP, circuitDelay } from '../fx';
+import { buildFx, CIRCUIT_STEP, circuitDelay, FX_DURATION, fxEnd } from '../fx';
 import { metrics, span } from '../theme';
 
 const m = metrics(390, 800);
@@ -171,5 +171,20 @@ describe('effect timing', () => {
     const delays = bursts(items);
     expect(delays.get(cellIndex(4, 3))!).toBeGreaterThan(third);
     expect(delays.get(cellIndex(3, 2))!).toBeGreaterThan(third);
+  });
+
+  it('lasts until the last effect has played, however long the circuit', () => {
+    const s = state([single(), single(), single()], {
+      terminals: { plus: { side: 'right', at: 5 }, minus: { side: 'left', at: 1 } },
+    });
+    ['###.###.', '#.#.#.##', '.##...##', '##.##.##', '#.##.##.', '#.#.##.#', '#.#.#..#', '###.####'].forEach((row, r) =>
+      [...row].forEach((ch, c) => ch === '#' && (s.grid[cellIndex(r, c)] = 2)),
+    );
+    const res = placePiece(s, 0, 2, 4, () => 0.5)!;
+    expect(res.circuit).toHaveLength(40);
+    const items = buildFx(res, m);
+    const praise = items.find((it) => it.kind === 'praise')!;
+    expect(fxEnd(items)).toBe(praise.delay! + FX_DURATION.praise);
+    expect(fxEnd(items)).toBeGreaterThan(2400);
   });
 });

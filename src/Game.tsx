@@ -32,7 +32,7 @@ import {
   type DailyRun,
 } from './daily';
 import { describePlacement } from './describe';
-import { buildFx, circuitDelay, FX_LIFETIME, type FxSpec } from './fx';
+import { buildFx, circuitDelay, fxEnd, FX_TAIL, type FxSpec } from './fx';
 import { buzz, type Buzz } from './haptics';
 import { comboRate, loadSounds, play, type Sfx } from './sound';
 import { emptyStats, recordDaily, recordGame, recordMove, type Stats as StatsData } from './stats';
@@ -223,7 +223,7 @@ export default function Game() {
       setFx((f) => [...f.filter((it) => !('cell' in it && covered.has(it.cell))), ...items]);
       if (items.length) {
         const ids = new Set(items.map((it) => it.id));
-        later(() => setFx((f) => f.filter((it) => !ids.has(it.id))), FX_LIFETIME);
+        later(() => setFx((f) => f.filter((it) => !ids.has(it.id))), fxEnd(items) + FX_TAIL);
       }
       const kind =
         res.surges.length || res.perfect || res.circuit.length ? 'heavy' : res.lineCount ? 'medium' : 'light';

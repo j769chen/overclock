@@ -9,7 +9,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { advanceDaily, dailyRand, shareText, startDaily } from '../daily';
 import { cellIndex, fits, makePiece, N, placePiece, type GameState } from '../engine';
 import { fmt } from '../format';
-import { FX_LIFETIME } from '../fx';
 import Game from '../Game';
 import { comboRate, loadSounds, play } from '../sound';
 import * as storage from '../storage';
@@ -253,8 +252,9 @@ describe('Game', () => {
     game.grid[cellIndex(5, 5)] = 4;
     await mount({ game });
     await place(1, 'A1');
+    await tick(900);
     expect(screen.getByText('+110')).toBeTruthy();
-    await tick(FX_LIFETIME);
+    await tick(300);
     expect(screen.queryByText('+110')).toBeNull();
   });
 });

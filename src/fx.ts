@@ -41,10 +41,15 @@ export const FX_DURATION: Record<Exclude<Fx['kind'], 'bolt'>, number> = {
   praise: 1100,
   combo: 900,
 };
-export const FX_LIFETIME = 2400;
+export const FX_TAIL = 200;
 export const CIRCUIT_STEP = 35;
 
 export const circuitDelay = (circuit: number[]) => (circuit.length ? (circuit.length + 1) * CIRCUIT_STEP : 0);
+
+const endOf = (it: Fx) =>
+  it.kind === 'bolt' ? it.duration : (it.delay ?? 0) + FX_DURATION[it.kind] + (it.kind === 'spark' ? it.hold : 0);
+
+export const fxEnd = (items: Fx[]) => Math.max(0, ...items.map(endOf));
 
 let fxId = 0;
 
